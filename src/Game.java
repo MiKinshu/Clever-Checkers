@@ -1,5 +1,4 @@
 import javafx.scene.control.Alert;
-
 import java.util.*;
 
 
@@ -9,6 +8,9 @@ public class Game{
     State state;
     Action nextAction;
     String winner;
+    final int MAX = 1000;
+    final int MIN = -1000;
+
 
     @Override
     public int hashCode() {
@@ -79,7 +81,7 @@ public class Game{
         return gameComplete;
     }
 
-    int maxValue(int depth, State s) {
+    int maxValue(int depth, State s, int alpha, int beta) {
         if(depth == MAXDEPTH) {
             return s.getGuessUtility();
         }
@@ -91,19 +93,21 @@ public class Game{
         for(Map.Entry<Coordinate, ArrayList<Action>> e : actions.entrySet()) {
             for (Action action : e.getValue()) {
                 State newState = s.getNextState(action);
-                int utilityNext = minValue(depth + 1, newState);
+                int utilityNext = minValue(depth + 1, newState, alpha, beta);
                 if (utilityNext > utility) {
                     if (depth == 0) {
                         nextAction = action;
                     }
                     utility = utilityNext;
                 }
+                alpha = Integer.max(alpha, utilityNext);
+                if (utilityNext > beta) return utility;
             }
         }
         return utility;
     }
 
-    int minValue(int depth, State s) {
+    int minValue(int depth, State s, int alpha, int beta) {
         if(depth == MAXDEPTH) {
             return s.getGuessUtility();
         }
@@ -115,13 +119,15 @@ public class Game{
         for(Map.Entry<Coordinate, ArrayList<Action>> e : actions.entrySet()) {
             for (Action action : e.getValue()) {
                 State newState = s.getNextState(action);
-                int utilityNext = maxValue(depth + 1, newState);
+                int utilityNext = maxValue(depth + 1, newState, alpha, beta);
                 if (utilityNext < utility) {
                     if (depth == 0) {
                         nextAction = action;
                     }
                     utility = utilityNext;
                 }
+                beta = Integer.min(beta, utilityNext);
+                if (utilityNext < alpha) return utility;
             }
         }
         return utility;
@@ -129,7 +135,7 @@ public class Game{
 
     void playNextMove(boolean oneHuman, boolean twoHuman, int depth) {
         if (state.isMaxChance() && !oneHuman) {
-            maxValue(0, state);
+            maxValue(0, state, MIN, MAX);
             if(!gameComplete) {
                 state = state.getNextState(nextAction);
                 if (state.getStateActions().isEmpty()) {
@@ -147,7 +153,7 @@ public class Game{
         }
         else if(!state.isMaxChance() && !twoHuman) {
             MAXDEPTH = depth;
-            minValue(0,state);
+            minValue(0,state, MIN, MAX);
             if(!gameComplete) {
                 state = state.getNextState(nextAction);
                 if (state.getStateActions().isEmpty()) {

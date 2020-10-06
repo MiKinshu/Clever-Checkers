@@ -20,15 +20,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class Main extends Application {
-
-    List<Circle> circles = new ArrayList<>();
-    boolean oneHuman = true, twoHuman = true;
-    int depth = 6;
+    List<Circle> circles = new ArrayList<>(); //contains circles that are visible on the screen.
+    boolean oneHuman = true, twoHuman = true; //modes oneHuman = true ==> player one is human
+    int depth = 6; //the difficulty in AI vs Human mode.
 
     public static void main(String[] args) {
         launch(args);
     }
 
+    //This function updates the javaFX scene. Additionally it also sets up on click listeners on the circles to implement the human players.
     void updateScene(Group root, Game game, Label chanceLabel, Label maxScoreLabel, Label minScoreLabel) {
         State state = game.getState();
         for (int i = 0; i < state.getMinPieceList().size(); i++) {
@@ -89,6 +89,8 @@ public class Main extends Application {
                                             alert.setHeaderText(null);
                                             alert.setContentText("Red is Winner!");
                                             alert.showAndWait();
+                                            Platform.exit();
+                                            System.exit(0);
                                         }
 
                                         game.setState(s);
@@ -173,6 +175,8 @@ public class Main extends Application {
                                             alert.setHeaderText(null);
                                             alert.setContentText("Black is Winner!");
                                             alert.showAndWait();
+                                            Platform.exit();
+                                            System.exit(0);
                                         }
 
                                         clearScene(root);
@@ -206,6 +210,7 @@ public class Main extends Application {
         minScoreLabel.setText("Min's Score : " + state.getMinScore());
     }
 
+    //This function removes all the circles from the JavaFx window.
     void clearScene(Group root) {
         for (Circle circle : circles) {
             root.getChildren().remove(circle);
@@ -213,6 +218,7 @@ public class Main extends Application {
         circles.clear();
     }
 
+    //Opens a popup with the various difficulties and return them.
     int chooseDifficulty() {
         String[] arrayData = new String[]{"easy", "normal", "hard", "novice", "expert"};
         List<String> dialogData = Arrays.asList(arrayData);
@@ -242,20 +248,21 @@ public class Main extends Application {
                 return 1;
             }
             case "hard" -> {
-                return 4;
+                return 3;
             }
             case "novice" -> {
-                return 5;
+                return 4;
             }
             case "expert" -> {
-                return 6;
+                return 5;
             }
             default -> {
-                return 3;
+                return 2;
             }
         }
     }
 
+    //Opens a popup with the various game modes and returns them.
     String chooseGameMode() {
         final String [] arrayData = {"AI vs AI", "Human vs AI", "Human vs Human"};
         List<String> dialogData = Arrays.asList(arrayData);
@@ -279,12 +286,14 @@ public class Main extends Application {
         return selected;
     }
 
+    //This is the first function that starts.
     @Override
     public void start(Stage primaryStage) {
         Canvas canvas = new Canvas();
         Group root = new Group(canvas);
         Scene scene= new Scene(root, 900, 900);
 
+        //Making the board. Stacking the squares.
         boolean red = true;
         for(int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -300,6 +309,7 @@ public class Main extends Application {
             }
             red = !red;
         }
+        //Following are the various labels that are shown at the bottom of the screen.
         Label chanceLabel = new Label("Black's Turn");
         chanceLabel.setFont(Font.font(15));
         chanceLabel.setLayoutX(660);
@@ -324,6 +334,7 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        //This detects the clicks on the scene. This function is responsible making the AI play the next move.
         scene.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -331,7 +342,6 @@ public class Main extends Application {
                     game.playNextMove(oneHuman, twoHuman, depth);
                     clearScene(root);
                     updateScene(root, game, chanceLabel, maxScoreLabel, minScoreLabel);
-
                 }
             }
         });

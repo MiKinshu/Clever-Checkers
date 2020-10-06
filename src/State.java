@@ -11,7 +11,7 @@ public class State {
     Map<Coordinate, ArrayList<Action>> stateActions;
     int[][] ActionsX = {{-1, -1, 1, 1}, {1, 1, -1, -1}};
     int[][] ActionsY = {{-1, 1, -1, 1}, {-1, 1, -1, 1}};
-    boolean continuedState;
+    boolean continuedState; //This variable is true only if the turn of the present player is continued. (It has killed some piece and agains is in the killing position.)
 
     public State(int maxScore, int minScore, boolean maxChance, List<Piece> maxPieceList, List<Piece> minPieceList, Map<Coordinate, Piece> board, boolean continuedState) {
         this.maxScore = maxScore;
@@ -112,12 +112,14 @@ public class State {
         this.stateActions = stateActions;
     }
 
+    //return the new coordinate after jumping over a piece.
     Coordinate getPositionAfterScoring(Coordinate oldCoordinate, Coordinate newCoordinate) {
         float dx = newCoordinate.getxCoordinate() - oldCoordinate.getxCoordinate();
         float dy = newCoordinate.getyCoordinate() - oldCoordinate.getyCoordinate();
         return new Coordinate(newCoordinate.getxCoordinate() + dx, newCoordinate.getyCoordinate() + dy);
     }
 
+    //returns the actions for a specific piece.
     ArrayList<Action> getPieceActions(Piece piece) {
         ArrayList<Action> actions = new ArrayList<>();
         int k = piece.isKing() ? 2 : 0;
@@ -151,6 +153,7 @@ public class State {
         return actions;
     }
 
+    //This function returns a map of coordinate and the available moves of the piece present at that action. A map is required because in case of Human agent we need the function of a specific agent based on its location.
     Map<Coordinate, ArrayList<Action>> getActions() {
         Map<Coordinate, ArrayList<Action>> actions = new HashMap<>();
         List<Piece> PieceList = (!maxChance) ? maxPieceList : minPieceList;
@@ -210,6 +213,7 @@ public class State {
         return ret;
     }
 
+    //returns true if the piece at killer Coordinate can again make a killing move.
     boolean canKillerKillAgain(Coordinate killer) {
         Piece piece = board.get(killer);
         ArrayList<Action> pieceActions = getPieceActions(piece);
@@ -232,6 +236,7 @@ public class State {
         return false;
     }
 
+    //Only return those actions of a killer using which it can kill again.
     Map<Coordinate, ArrayList<Action>> getKillerActions(Coordinate killer) {
         Map<Coordinate, ArrayList<Action>> actions = new HashMap<>();
         Piece piece = board.get(killer);
@@ -251,6 +256,7 @@ public class State {
         return actions;
     }
 
+    //The guess heuristic to be used upon reaching cutoff depth in minimax algorithm.
     int getGuessUtility() {
         int kingsMax = 0, kingsMin = 0, normalMax = 0, normalMin = 0;
         for (Piece piece : maxPieceList) {
@@ -264,6 +270,7 @@ public class State {
         return (int)(normalMax - normalMin + 2 * kingsMax - 2 * kingsMin);
     }
 
+    //Returns the next state after application of an action.
     State getNextState(Action a) {
         Coordinate oldPosition = a.getOldCoordinate(), newPosition = a.getNewCoordinate();
         State newState = new State(this);

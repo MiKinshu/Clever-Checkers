@@ -1,7 +1,7 @@
 public class Action {
     Coordinate oldCoordinate, newCoordinate;
     int newMaxScore, newMinScore;
-    boolean isKillAction;
+    boolean isKillAction; //this is true if the action results in a kill.
 
     public boolean isKillAction() {
         return isKillAction;

@@ -1,4 +1,6 @@
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class State {
     int maxScore, minScore;
@@ -8,15 +10,16 @@ public class State {
     Map<Coordinate, ArrayList<Action>> stateActions;
     int[][] ActionsX = {{-1, -1, 1, 1}, {1, 1, -1, -1}};
     int[][] ActionsY = {{-1, 1, -1, 1}, {-1, 1, -1, 1}};
+    boolean continuedState;
 
-    public State(int maxScore, int minScore, boolean maxChance, List<Piece> maxPieceList, List<Piece> minPieceList, Map<Coordinate, Piece> board) {
+    public State(int maxScore, int minScore, boolean maxChance, List<Piece> maxPieceList, List<Piece> minPieceList, Map<Coordinate, Piece> board, boolean continuedState) {
         this.maxScore = maxScore;
         this.minScore = minScore;
         this.maxChance = maxChance;
         this.maxPieceList = maxPieceList;
         this.minPieceList = minPieceList;
         this.board = board;
-
+        this.continuedState = continuedState;
         //This inversion of maxChance is required because the getActions() functions is modelled such that it gives the set of actions for the next player, because he will be the one new state formed.
         this.maxChance = !this.maxChance;
         this.stateActions = getActions();
@@ -30,6 +33,7 @@ public class State {
         this.maxPieceList = new ArrayList<>();
         this.minPieceList = new ArrayList<>();
         this.board = new HashMap<>();
+        this.continuedState = false;
         for(Piece p : s.getMaxPieceList()) {
             this.maxPieceList.add(new Piece(p));
         }
@@ -41,6 +45,14 @@ public class State {
         }
         //No inversion is done here, unlike above, as the getActions() function is not called.
         stateActions = new HashMap<>();
+    }
+
+    public boolean isContinuedState() {
+        return continuedState;
+    }
+
+    public void setContinuedState(boolean continuedState) {
+        this.continuedState = continuedState;
     }
 
     public int getMaxScore() {
@@ -197,6 +209,47 @@ public class State {
         return ret;
     }
 
+    boolean canKillerKillAgain(Coordinate killer) {
+        Piece piece = board.get(killer);
+        ArrayList<Action> pieceActions = getPieceActions(piece);
+        if (piece.isMax()) {
+            for(Action a : pieceActions) {
+                if (a.getNewMaxScore() > maxScore) {
+                    continuedState = true;
+                    return true;
+                }
+            }
+        }
+        else {
+            for(Action a : pieceActions) {
+                if (a.getNewMinScore() > minScore) {
+                    continuedState = true;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    Map<Coordinate, ArrayList<Action>> getKillerActions(Coordinate killer) {
+        Map<Coordinate, ArrayList<Action>> actions = new HashMap<>();
+        Piece piece = board.get(killer);
+        ArrayList<Action> pieceActions = getPieceActions(piece);
+        ArrayList<Action> pieceKillingActions = new ArrayList<>();
+        if (piece.isMax()) {
+            for(Action a : pieceActions) {
+                if (a.isKillAction()) pieceKillingActions.add(a);
+            }
+        }
+        else {
+            for(Action a : pieceActions) {
+                if (a.isKillAction()) pieceKillingActions.add(a);
+            }
+        }
+        actions.put(killer, pieceKillingActions);
+        return actions;
+    }
+
     int getGuessUtility() {
         int kingsMax = 0, kingsMin = 0, normalMax = 0, normalMin = 0;
         for (Piece piece : maxPieceList) {
@@ -266,8 +319,10 @@ public class State {
                 if(i != newState.getMaxPieceList().size()) newState.getMaxPieceList().remove(i);
             }
         }
-        newState.setStateActions(newState.getActions());
-        newState.setMaxChance(!newState.isMaxChance());
+        if (a.isKillAction() && newState.canKillerKillAgain(a.getNewCoordinate())) {
+            newState.setStateActions(newState.getKillerActions(a.getNewCoordinate()));
+        }
+        else newState.setStateActions(newState.getActions());
         return newState;
     }
 }

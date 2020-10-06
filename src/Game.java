@@ -72,7 +72,7 @@ public class Game{
             minPieceList.add(minP);
             board.put(minC, minP);
         }
-        state = new State(0, 0, true, maxPieceList, minPieceList, board);
+        state = new State(0, 0, true, maxPieceList, minPieceList, board, false);
     }
 
     boolean hasFinished() {
@@ -136,11 +136,14 @@ public class Game{
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Information Dialog");
                     alert.setHeaderText(null);
-                    alert.setContentText("Max is winner!");
+                    alert.setContentText("Black is Winner!");
                     alert.showAndWait();
                 }
             }
-            state.setMaxChance(false);
+            if (!state.isContinuedState()) state.setMaxChance(false);
+            else {
+                playNextMove(oneHuman, twoHuman, depth);
+            }
         }
         else if(!state.isMaxChance() && !twoHuman) {
             MAXDEPTH = depth;
@@ -151,11 +154,14 @@ public class Game{
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Information Dialog");
                     alert.setHeaderText(null);
-                    alert.setContentText("Min is winner!");
+                    alert.setContentText("Red is Winner!");
                     alert.showAndWait();
                 }
             }
-            state.setMaxChance(true);
+            if (!state.isContinuedState()) state.setMaxChance(true);
+            else {
+                playNextMove(oneHuman, twoHuman, depth);
+            }
         }
     }
 }

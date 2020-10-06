@@ -40,6 +40,7 @@ public class Main extends Application {
             circle.setRadius(30);
             circle.setFocusTraversable(true);
 
+            final Alert[] alert = new Alert[1];
             if (twoHuman) {
                 circle.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
                     @Override
@@ -60,7 +61,13 @@ public class Main extends Application {
 
                             List<Action> actions = new ArrayList<>();
                             if(state.getStateActions().containsKey(p.getPosition())) actions = state.getStateActions().get(p.getPosition());
-                            else System.out.println("No Action found!");
+                            else {
+                                alert[0] = new Alert(Alert.AlertType.INFORMATION);
+                                alert[0].setTitle("Information Dialog");
+                                alert[0].setHeaderText(null);
+                                alert[0].setContentText("This piece cannot make any valid moves. \nEither:\n1. This piece is blocked. OR\n2. Another piece is in killing position");
+                                alert[0].showAndWait();
+                            }
 
                             for (Action action : actions) {
                                 Circle c = new Circle();
@@ -80,14 +87,21 @@ public class Main extends Application {
                                             Alert alert = new Alert(Alert.AlertType.INFORMATION);
                                             alert.setTitle("Information Dialog");
                                             alert.setHeaderText(null);
-                                            alert.setContentText("Min winner!");
+                                            alert.setContentText("Red is Winner!");
                                             alert.showAndWait();
                                         }
 
                                         game.setState(s);
                                         clearScene(root);
                                         updateScene(root, game, chanceLabel, maxScoreLabel, minScoreLabel);
-                                        game.getState().setMaxChance(true);
+                                        if (!game.getState().isContinuedState()) game.getState().setMaxChance(true);
+                                        else {
+                                            alert[0] = new Alert(Alert.AlertType.INFORMATION);
+                                            alert[0].setTitle("Information Dialog");
+                                            alert[0].setHeaderText(null);
+                                            alert[0].setContentText("Please again make a move. The previous killer is again in killing position");
+                                            alert[0].showAndWait();
+                                        }
                                     }
                                 });
                                 root.getChildren().add(c);
@@ -110,6 +124,7 @@ public class Main extends Application {
             circle.setRadius(30);
             circle.setFocusTraversable(true);
 
+            final Alert[] alert = new Alert[1];
             if (oneHuman) {
                 circle.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
                     @Override
@@ -127,11 +142,15 @@ public class Main extends Application {
 
                             if (p.isKing()) System.out.println("KINGGG");
 
-                            if (state.getStateActions().isEmpty()) System.out.println("Min is winner!");
-
                             List<Action> actions = new ArrayList<>();
                             if(state.getStateActions().containsKey(p.getPosition())) actions = state.getStateActions().get(p.getPosition());
-                            else System.out.println("Piece not found");
+                            else {
+                                alert[0] = new Alert(Alert.AlertType.INFORMATION);
+                                alert[0].setTitle("Information Dialog");
+                                alert[0].setHeaderText(null);
+                                alert[0].setContentText("This piece cannot make any valid moves. \nEither:\n1. This piece is blocked. OR\n2. Another piece is in killing position");
+                                alert[0].showAndWait();
+                            }
 
                             for (Action action : actions) {
                                 Circle c = new Circle();
@@ -152,14 +171,21 @@ public class Main extends Application {
                                             Alert alert = new Alert(Alert.AlertType.INFORMATION);
                                             alert.setTitle("Information Dialog");
                                             alert.setHeaderText(null);
-                                            alert.setContentText("Max winner!");
+                                            alert.setContentText("Black is Winner!");
                                             alert.showAndWait();
                                         }
 
                                         clearScene(root);
                                         updateScene(root, game, chanceLabel, maxScoreLabel, minScoreLabel);
                                         System.out.println("max's turn over");
-                                        game.getState().setMaxChance(false);
+                                        if (!game.getState().isContinuedState()) game.getState().setMaxChance(false);
+                                        else {
+                                            alert[0] = new Alert(Alert.AlertType.INFORMATION);
+                                            alert[0].setTitle("Information Dialog");
+                                            alert[0].setHeaderText(null);
+                                            alert[0].setContentText("Please again make a move. The previous killer is again in killing position");
+                                            alert[0].showAndWait();
+                                        }
                                         System.out.println("Printing turn " + game.getState().isMaxChance());
                                     }
                                 });
@@ -301,13 +327,11 @@ public class Main extends Application {
         scene.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if (game.getState().isMaxChance()) System.out.println("max's turn");
-                else System.out.println("Min's turn");
                 if (!game.hasFinished()) {
                     game.playNextMove(oneHuman, twoHuman, depth);
                     clearScene(root);
                     updateScene(root, game, chanceLabel, maxScoreLabel, minScoreLabel);
-                    if (game.getState().getStateActions().isEmpty()) System.out.println("Game Over!");
+
                 }
             }
         });

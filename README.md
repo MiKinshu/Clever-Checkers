@@ -16,7 +16,7 @@ JavaFx liberaries are required to run the GUI based features.
 
 1. As soon as the game starts, the user is asked to choose a mode to continue playing. There are three modes available viz a viz AI vs AI, AI vs Human, Human vs Human.
 
-![Choose game dialogue](screenShots/chooseGameDialogue.jpg)
+	![Choose game dialogue](screenShots/chooseGameDialogue.jpg)
 
 	* From the drop down if the user chooses the AI vs Human mode then the user is again given 5 options to choose the difficulty.
 
@@ -28,16 +28,16 @@ JavaFx liberaries are required to run the GUI based features.
 
 ![How to make human move](screenShots/howToMakeHumanMove.jpg)
 
-4. Upon clicking on the pink circles, the respective piece moves to the new location.
-5. The rules of the game suggest that if a player in one of his chances can capture the other players piece, then he must do that. However, if there are multiple pieces in capturing position the player is free to choose any one of them. So, in such a situation the pink circles only show up for the pieces that are in a capturing position and if the user clicks on another piece, he is given the given below persistent notification. Note that a similar notification shows up if the players tries to move a piece that is blocked by the opponents or one of his own pieces.
+3. Upon clicking on the pink circles, the respective piece moves to the new location.
+4. The rules of the game suggest that if a player in one of his chances can capture the other players piece, then he must do that. However, if there are multiple pieces in capturing position the player is free to choose any one of them. So, in such a situation the pink circles only show up for the pieces that are in a capturing position and if the user clicks on another piece, he is given the given below persistent notification. Note that a similar notification shows up if the players tries to move a piece that is blocked by the opponents or one of his own pieces.
 
 ![Invalid move dialogue](screenShots/invalidMoveDialogue.jpg)
 
-6. The game GUI also features a score board at the bottom of the screen which shows the scores of the two players and the color of the player who plays next.
+5. The game GUI also features a score board at the bottom of the screen which shows the scores of the two players and the color of the player who plays next.
 
 ![Scoreboard](screenShots/scoreBoard.jpg)
 
-7. Upon completion of the game, a dialogue is shown which tells the name of the winner.
+6. Upon completion of the game, a dialogue is shown which tells the name of the winner.
 
 ![Winning dialogue](screenShots/winningDialogue.jpg)
 
